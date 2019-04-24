@@ -1,7 +1,8 @@
 class Platform {
 
-    constructor(xPos, yPos, pWidth, windDir, pUpSnake, pDownSnake) {
+    constructor(pParent, xPos, yPos, pWidth, windDir, pUpSnake, pDownSnake) {
       
+      this.parent = pParent;
       this.x = xPos;
       this.y = yPos;
       this.width = pWidth;
@@ -21,6 +22,11 @@ class Platform {
     show() {
 
       stroke(55,30,30);
+      strokeWeight(1);
+      if (this === this.parent.platforms[this.parent.currentPlatform]){
+        stroke(155,30,30);
+        strokeWeight(3);
+      }
       line(this.x, this.y, this.x + this.width, this.y);  
 
       // show up snake

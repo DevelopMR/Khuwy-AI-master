@@ -516,12 +516,12 @@ class Genome {
   // add player detail HACK
 
   try{
-    var tPosX = 663; 
+    var tPosX = 682; 
     var tPosY =  nodePoses[0].x - 45; // relate to first node
     var tPosY2 = nodePoses[0].x - 30;
     var xSpacer = 67;
-    var yTop = 5;
-    textAlign(LEFT);
+  
+    textAlign(CENTER);
     noStroke();
     textSize(14);
     textStyle(BOLD);
@@ -532,7 +532,15 @@ class Genome {
     // vision 2 duck elevation
     // vision 3 obstacle
 
-    text("upSnake   dnSnake      elev          obst", tPosX -13, tPosY);
+    //text("upSnake   dnSnake      elev          obst", tPosX -13, tPosY);
+    textSize(10);
+    text("UPSNAKE", tPosX , tPosY);
+    text("XPOS", tPosX + 1 * xSpacer, tPosY);
+    text("ELEV", tPosX + 2 * xSpacer, tPosY);
+    text("OBST", tPosX + 3 * xSpacer, tPosY);
+    text("BIAS", tPosX + 4 * xSpacer, tPosY);
+
+    textSize(14);
     text(player.vision0.toFixed(1), tPosX, tPosY2);
     text(player.vision1.toFixed(1), tPosX + 1 * xSpacer, tPosY2);
     text(player.vision2.toFixed(1), tPosX + 2 * xSpacer, tPosY2);
@@ -549,34 +557,53 @@ class Genome {
     var res2 = player.response2.toFixed(3);
     var res3 = player.response3.toFixed(3);
 
-    var xPos2 = 676;
+    var xPos2 = 694;
     var yPos2 = nodePoses[nodePoses.length-1].x + 45; // relate to response nodes
+    bestDuckLogYPos = yPos2 + 60; //global
   
     var xSpacer = 80;
 
-    fill(230,230,100);
-    text("LEFT           RIGHT            UP             DOWN", xPos2, yPos2 -15);
+    var baseColor = color(230,230,100);
+    var hotColor = color(255,0,0);
+
+    fill(baseColor);
+    
     if (res0 > .6) {
-      fill(255,0,0);
+      fill(hotColor);
     }
+    textSize(10);
+    text("LEFT", xPos2, yPos2 -15);
+    textSize(14);
     text(player.response0.toFixed(3), xPos2, yPos2);
-    fill(230,230,100);
+    
 
+    fill(baseColor);
     if (res1 > .6) {
-      fill(255,0,0);
+      fill(hotColor);
     }
+    textSize(10);
+    text("RIGHT", xPos2 + xSpacer, yPos2 -15);
+    textSize(14);
     text(player.response1.toFixed(3), xPos2 + xSpacer, yPos2); 
-    fill(230,230,100);
+    
 
+    fill(baseColor);
     if (res2 > .6) {
-      fill(255,0,0);
+      fill(hotColor);
     }
+    textSize(10);
+    text("UP", xPos2 + 2*xSpacer, yPos2 -15);
+    textSize(14);
     text(player.response2.toFixed(3), xPos2 + 2*xSpacer, yPos2);
-    fill(230,230,100);
+    
 
+    fill(baseColor);
     if (res3 > .6) {
-      fill(255,0,0);
+      fill(hotColor);
     }
+    textSize(10);
+    text("DOWN", xPos2 + 3*xSpacer, yPos2 -15);
+    textSize(14);
     text(player.response3.toFixed(3), xPos2 + 3*xSpacer, yPos2);
     fill(230,230,100);
 

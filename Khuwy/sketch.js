@@ -7,6 +7,9 @@ var pauseBecauseDead = false;
 
 var dieOff = false;
 
+var bestDuckLog; // global
+var bestDuckLogYPos = 400; // global
+
 // neat global variables
 
 var nextConnectionNo = 1000;
@@ -24,8 +27,10 @@ var showNothing = false;
 // preload - get image assets
 function preload() {
     backgroundSprite = loadImage("images/Khuwy_background.png");
-    duckSprite = loadImage("images/Duck.png");
-    goldenDuckSprite = loadImage("images/BestDuck.png");
+    duckSpriteRight = loadImage("images/DuckRT.png");
+    duckSpriteLeft = loadImage("images/DuckLT.png");
+    goldenDuckSpriteLeft = loadImage("images/BestDuckLT.png");
+    goldenDuckSpriteRight = loadImage("images/BestDuckRT.png");
     snakeSprite = loadImage("images/Snake.png");
     beaverRtSprite = loadImage("images/Beaver_rt.png");
     beaverLtSprite = loadImage("images/Beaver_lt.png");
@@ -36,6 +41,8 @@ function setup() {
     player = new Duck();
     pauseBecauseDead = false;
     population = new Population(1000);
+
+    bestDuckLog = []; // set as empty array - zeros each new setup
   
     
     humanPlayer = new Duck(); // MMMM
@@ -75,70 +82,80 @@ function drawBackground() {
 }
 
 function drawOverlay(){
-    writeInfo();
+    if (!showNothing){
+        writeInfo();
+    }
 }
 
 function drawBrain() { //show the brain of whatever genome is currently showing
-    var startX = 615; 
-    var startY = 10;
-    var w = 350;
-    var h = 400;
-  
-    if (runBest) {
-      population.bestPlayer.brain.drawGenome(startX, startY, w, h);
-    } else if (humanPlaying) {
-      showBrain = false;
-    } else {
-      population.players[0].brain.drawGenomeDetail(startX, startY, w, h, population.getCurrentBest());
+    if (!showNothing){
+        var startX = 615; 
+        var startY = 10;
+        var w = 350;
+        var h = 400;
+    
+        if (runBest) {
+        population.bestPlayer.brain.drawGenome(startX, startY, w, h);
+        } else if (humanPlaying) {
+        showBrain = false;
+        } else {
+        population.players[0].brain.drawGenomeDetail(startX, startY, w, h, population.getCurrentBest());
+        }
     }
 }
 
-function showLuckyDuckData()
-{
-    var luckyDuck = population.getCurrentBest();
+function showLuckyDuckData(){
+    if (!showNothing){
+        var luckyDuck = population.getCurrentBest();
+        generationLog = population.log;
+        var lastNode = luckyDuck.brain.nodes.length-1;
+        //var yStart = luckyDuck.brain.nodes[lastNode].drawPos.y + 350;
 
-    if (luckyDuck != null){
-        push();
-        translate(675, 370);
-        textSize(20);
-        textAlign(LEFT);
-        textFont('Arial Black');
-        text("SCORE " + luckyDuck.score, 0, 0);
-        
-        text("FITNESS " + luckyDuck.fitness.toFixed(0), 0, 20);
-        
-        text("LOG", 0, 40);
-        textAlign(LEFT);
-        textSize(16);
-        i = 0;
-        luckyDuck.log.forEach(entry => {
-            text(entry, 0, 65 + i*20);
-            i++;
-        });
-        pop();
+        if (luckyDuck != null){
+            push();
+            translate(650, bestDuckLogYPos);
+            textSize(26);
+            textAlign(LEFT);
+            textFont('Arial Black');
+            text("SCORE " + luckyDuck.score.toFixed(0), 0, 0);
+            textSize(20);
+            text("FITNESS " + luckyDuck.fitness.toFixed(0), 0, 27);
+            text("GRAVITY " + luckyDuck.duckGravity, 0, 51);
+            
+            text("LOG", 0, 75);
+            textAlign(LEFT);
+            textSize(16);
+            i = 0;
+            generationLog.forEach(entry => {
+                text(entry, 0, 98 + i*20);
+                i++;
+            });
+
+            bestDuckLog.forEach(entry => {
+                text(entry, 0, 98 + i*20);
+                i++;
+            });
+            pop();
+        }
     }
-
 }
+
 function writeInfo() {
     fill(255);
     stroke(255);
-    textAlign(LEFT);
-    textSize(30);
-    textSize(50);
-    textAlign(CENTER);
     textFont('Arial Black');
+
     if (humanPlaying) {
+      textSize(50);
+      textAlign(CENTER);
       text(humanPlayer.score, 317, 42); 
     } else {
-      var bestCurrentPlayer = population.getCurrentBest();
-  
-      text(bestCurrentPlayer.score, 317, 42); 
+      //
       textSize(26);
       textAlign(LEFT);
-      
-      text("GENERATION " + population.gen, 10, 883);
+      text("GENERATION " + population.gen, 10, 876);
       textAlign(RIGHT);
-      text(population.remaining + " ALIVE", 620, 883);
+      text(population.remaining + " ALIVE", 620, 876);
     }
   }
 

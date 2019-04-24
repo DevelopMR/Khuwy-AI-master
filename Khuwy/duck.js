@@ -59,17 +59,113 @@ class Duck {
     show() {
   
       this.platforms.show();
-       
 
       if(this.isBest){
-        image(goldenDuckSprite, this.x, this.y);
+
+        if(this.velX > 0){
+          image(goldenDuckSpriteRight, this.x, this.y);
+        }
+        else
+        { 
+          image(goldenDuckSpriteLeft, this.x, this.y);
+        }
+        
+        // duck vision
+        this.bestVisionHUD();
       }
       else{
-        image(duckSprite, this.x, this.y);
+
+        if(this.velX > 0){
+          image(duckSpriteRight, this.x, this.y);
+        }
+        else {
+          image(duckSpriteLeft, this.x, this.y);
+        }
+
       }
       
     }
   
+    bestVisionHUD(){
+      // vision0 = upSnakeDist;
+      // vision1 = xPos;
+      // vision2 = duckElevation;
+      // vision3 = distObstacle;
+
+        // draw visions
+        push();
+
+        var facingDelta = 0;
+        if (this.velX >0){
+          facingDelta = 34;
+        }
+
+        translate(this.x+15, this.y+5); // get to duck eye
+
+        // upSnakeDist
+        strokeWeight(1);
+        stroke(50,200,50);
+        line(0+facingDelta,0, -this.vision0, 0);
+        line(-this.vision0, 0, -this.vision0, -10);
+
+        // xPos
+        //if (this.vision1 > -560){
+          stroke(120);
+          line(0+facingDelta,0, -this.vision1, 0);
+          line(-this.vision1, -10, -this.vision1, 10);
+          //ellipse(-this.vision1, 0, 4, 4);
+        //}
+
+        // duckElevation
+        stroke(255);
+        line(0+facingDelta,0,0+facingDelta, this.vision2);
+        ellipse(0+facingDelta, this.vision2, 4, 4);
+
+        // distObstacle
+        stroke(230,100,30);
+        line(0+facingDelta,0,-this.vision3, this.platforms.platforms[this.platforms.currentPlatform].obstacle.y - this.y+5);
+        stroke(255,100,50);
+        line(0+facingDelta,0,-this.vision3, 0);
+        line(-this.vision3,0,-this.vision3, 10);
+    
+
+/*         // wind
+        stroke(150,150,255);
+        line(0,0, 10* this.headwind, 0);
+        ellipse(10* this.headwind, 0, 4, 4);
+
+        // gravity
+        stroke(150,50,75);
+        line(0,0, 0, 10 * this.duckGravity);
+        ellipse(0, 10 * this.duckGravity, 4, 4); */
+
+        // actions
+        stroke(255,0,50);
+        strokeWeight(2);
+        // left
+        if (this.response0 > .6){
+          line(0+facingDelta, 0, -15+facingDelta, 0);
+          ellipse(-15+facingDelta, 0, 4, 4);
+        }
+        // right
+        if (this.response1 > .6){
+          line(0+facingDelta, 0, 15+facingDelta, 0);
+          ellipse(15+facingDelta, 0, 4, 4);
+        }
+        // up
+        if (this.response2 > .6){
+          line(0+facingDelta, 0, 0+facingDelta, -15);
+          ellipse(0+facingDelta, -15, 4, 4);
+        }
+        // down
+        if (this.response3 > .6){
+          line(0+facingDelta, 0, 0+facingDelta, 15);
+          ellipse(0+facingDelta, 15, 4, 4);
+        }
+
+        pop();
+    
+    }
 
   
   
@@ -91,15 +187,21 @@ class Duck {
 
       // passed second platform
       if (this.y + this.height < this.platforms.platforms[2].y){
-
-        this.score++; 
+        if (!this.platforms.platforms[2].wasReached){
+          this.score +=50000; 
+          this.platforms.platforms[2].wasReached = true;
+        }
         
         this.platforms.currentPlatform = 2;
       }
 
       // passed third platform
       if (this.y + this.height < this.platforms.platforms[3].y){
-        this.score++; 
+        if (!this.platforms.platforms[3].wasReached){
+          this.score +=500000; 
+          this.platforms.platforms[3].wasReached = true;
+        }
+
         this.platforms.currentPlatform = 3;
       }
 
@@ -184,6 +286,10 @@ class Duck {
       //   ordered by importance
       if ((this.x > 565)||(this.x < 32)||(this.y > 835)||(this.y < 30))
         {
+            this.log.push("I hit a boundary!");
+            if(this.isBest){
+              bestDuckLog.push("I hit a boundary!");
+            }
             this.dead = true;
             pauseBecauseDead = true;
         }
@@ -206,9 +312,9 @@ class Duck {
         if (!this.dead && this.atSnake) {
           this.velX = 0;
           this.velY = -3;
-          this.score += 100; // helps tease them up the snake
+          this.score += 10; //100 // helps tease them up the snake
         } else if ((!this.dead)&&(this.y + this.height == this.platforms.platforms[this.platforms.currentPlatform].y)) {
-            this.duckGravity = gravity; 
+            //this.duckGravity = gravity; 
           this.velX = 2 * this.velX;
           this.velY = -6;
       }
@@ -245,27 +351,30 @@ class Duck {
       // calc visions
       var currentPlatform = this.platforms.platforms[this.platforms.currentPlatform];
       var upSnake = currentPlatform.upSnake;
-      var downSnake = currentPlatform.downSnake;
+      //var downSnake = currentPlatform.downSnake;
+
       var platformObstacle = currentPlatform.obstacle;
       var upSnakeDist = this.x - upSnake.x;
-      var dnSnakeDist = this.x;
-      if (downSnake != null){
+      var dnSnakeDist = -560;
+/*       if (downSnake != null){
         dnSnakeDist = this.x - downSnake.x; // duck can see downSnake
-      }
-      var duckElevation = 820 - this.y;
+      } */
+      var duckElevation = 810 - this.y;
       var distObstacle = this.x - platformObstacle.x;
 
       this.vision = [];
 
       this.vision[0] = map(upSnakeDist, -560, 560, -1, 1); // duck can see upSnake 
-      this.vision[1] = map(dnSnakeDist, -560, 560, -1, 1); // duck can see downSnake 
-      this.vision[2] = map(duckElevation, 0, 820, 0, 1); // duck elevation
+      this.vision[1] = map(this.x, -560, 560, -1, 1); // duck can see downSnake 
+      //this.vision[1] = map(dnSnakeDist, -560, 560, -1, 1); // duck can see downSnake
+      this.vision[2] = map(duckElevation, 0, 810, 0, 1); // duck elevation
       this.vision[3] = map(distObstacle , -560, 560, -1, 1); // obstacle
   
         
       // set player object vision properties for display
       this.vision0 = upSnakeDist;
-      this.vision1 = dnSnakeDist;
+      this.vision1 = this.x;
+      //this.vision1 = dnSnakeDist;
       this.vision2 = duckElevation;
       this.vision3 = distObstacle;
   

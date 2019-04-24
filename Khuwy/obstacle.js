@@ -24,7 +24,6 @@ class Obstacle {
             image(beaverRtSprite, this.x, this.y);
         }
         
-  
     }
   
     update() {
@@ -47,6 +46,11 @@ class Obstacle {
                 if(p.x + p.width < this.x){
                     this.wasPassed = true;
                     p.log.push("Jumped a Fire Beaver!");
+
+                    if (p.isBest){
+                        bestDuckLog.push("Jumped a Fire Beaver!");
+                    }
+
                     return true;
                 }
             }
@@ -54,6 +58,11 @@ class Obstacle {
                 if(p.x < this.x + this.width){
                     this.wasPassed = true;
                     p.log.push("Jumped a Fire Beaver!");
+
+                    if (p.isBest){
+                        bestDuckLog.push("Jumped a Fire Beaver!");
+                    }
+
                     return true;
                 }
             }
@@ -68,13 +77,16 @@ class Obstacle {
        if ((p.x + p.width - 5 > this.x) && (p.x + 13 < this.x + this.width)){
          if ((p.y + p.height > this.y) && (p.y < this.y + this.height)){
             p.log.push("Ouch, hit a Fire Beaver!");
+            if (p.isBest){
+                bestDuckLog.push("Ouch, hit a Fire Beaver!");
+            }
+
              return true;
          }
 
        } 
 
        return false;
-      
   
     }
   

@@ -16,14 +16,15 @@ class Population {
       this.gensSinceNewWorld = 0;
 
       this.remaining = 0; // number still alive
+
+      this.log = []; // generation history log
+      this.log.push("New Population");
   
       for (var i = 0; i < size; i++) {
   
-        //this.players.push(new Player());
         this.players.push(new Duck());
 
-        // this.players[this.players.length - 1].brain.fullyConnect(this.innovationHistory);
-        this.players[this.players.length - 1].brain.mutate(this.innovationHistory); //fullyConnect(this.innovationHistory);
+        this.players[this.players.length - 1].brain.mutate(this.innovationHistory); 
         this.players[this.players.length - 1].brain.generateNetwork();
   
       }
@@ -95,6 +96,9 @@ class Population {
         this.genPlayers.push(tempBest.cloneForReplay());
         console.log("old best: " + this.bestScore);
         console.log("new best: " + tempBest.score);
+
+        this.log.push("New best score " + tempBest.score);
+
         this.bestScore = tempBest.score;
         this.bestPlayer = tempBest.cloneForReplay();
       }
@@ -117,8 +121,10 @@ class Population {
       this.setBestPlayer(); //save the best player of thisthis.gen
       this.killStaleSpecies(); //remove this.species which haven't improved in the last 15(ish)this.generations
       this.killBadSpecies(); //kill this.species which are so bad that they cant reproduce
-  
-      console.log("generation  " + this.gen + "  Number of mutations  " + this.innovationHistory.length + "  species:   " + this.species.length + "  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
+
+
+      //console.log("generation  " + this.gen + "  Number of mutations  " + this.innovationHistory.length + "  species:   " + this.species.length + "  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
   
       var averageSum = this.getAvgFitnessSum();
       var children = [];
@@ -132,8 +138,8 @@ class Population {
           children.push(this.species[j].giveMeBaby(this.innovationHistory));
         }
       }
-      // setup();
-      // return;
+
+
       if (children.length < this.players.length) {
         children.push(previousBest.clone());
       }
@@ -141,14 +147,21 @@ class Population {
         children.push(this.species[0].giveMeBaby(this.innovationHistory)); //get babies from the best this.species
       }
   
-  
-  
+
       this.players = [];
       arrayCopy(children, this.players); //set the children as the current this.playersulation
       this.gen += 1;
       for (var i = 0; i < this.players.length; i++) { //generate networks for each of the children
         this.players[i].brain.generateNetwork();
       }
+
+      // update log after extinction
+      bestDuckLog = []; // global
+      this.log = []; // clear population 
+      this.log.push("Generation  " + this.gen); 
+      this.log.push("Total Mutations  " + this.innovationHistory.length);
+      this.log.push("Species  " + this.species.length);
+
     }
   
     //------------------------------------------------------------------------------------------------------------------------------------------
