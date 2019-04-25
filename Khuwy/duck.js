@@ -49,7 +49,7 @@ class Duck {
       this.score = 0;
       this.gen = 0;
   
-      this.genomeInputs = 4;
+      this.genomeInputs = 5;
       this.genomeOutputs = 4;
   
       this.brain = new Genome(this.genomeInputs, this.genomeOutputs);
@@ -69,11 +69,10 @@ class Duck {
         { 
           image(goldenDuckSpriteLeft, this.x, this.y);
         }
-        
         // duck vision
         this.bestVisionHUD();
       }
-      else{
+      else {
 
         if(this.velX > 0){
           image(duckSpriteRight, this.x, this.y);
@@ -87,16 +86,17 @@ class Duck {
     }
   
     bestVisionHUD(){
+
       // vision0 = upSnakeDist;
       // vision1 = xPos;
       // vision2 = duckElevation;
       // vision3 = distObstacle;
 
-        // draw visions
+        // draw visions for Lucky Duck
         push();
 
-        var facingDelta = 0;
-        if (this.velX >0){
+        var facingDelta = 0; // allows for vision to meet ducks eyes when facing right
+        if (this.velX > 0){
           facingDelta = 34;
         }
 
@@ -105,41 +105,40 @@ class Duck {
         // upSnakeDist
         strokeWeight(1);
         stroke(50,200,50);
-        line(0+facingDelta,0, -this.vision0, 0);
-        line(-this.vision0, 0, -this.vision0, -10);
+        line(0+facingDelta,0, this.vision0, 0);
+        line(this.vision0, 0, this.vision0, -10);
 
         // xPos
-        //if (this.vision1 > -560){
           stroke(120);
           line(0+facingDelta,0, -this.vision1, 0);
           line(-this.vision1, -10, -this.vision1, 10);
-          //ellipse(-this.vision1, 0, 4, 4);
-        //}
 
         // duckElevation
         stroke(255);
         line(0+facingDelta,0,0+facingDelta, this.vision2);
         ellipse(0+facingDelta, this.vision2, 4, 4);
 
+
+        // distObstacleAbove
+        stroke(230,180,30);
+        line(0+facingDelta,0,this.vision4, this.platforms.platforms[this.platforms.currentPlatform+1].obstacle.y - this.y+5);
+        strokeWeight(2);
+        stroke(230,180,50);
+        line(0+facingDelta,0,this.vision4, 0);
+        line(this.vision4,0,this.vision4, -10);
+
+
         // distObstacle
-        stroke(230,100,30);
-        line(0+facingDelta,0,-this.vision3, this.platforms.platforms[this.platforms.currentPlatform].obstacle.y - this.y+5);
-        stroke(255,100,50);
-        line(0+facingDelta,0,-this.vision3, 0);
-        line(-this.vision3,0,-this.vision3, 10);
+        strokeWeight(1);
+        stroke(230, 90, 30);
+        line(0 + facingDelta, 0, this.vision3, this.platforms.platforms[this.platforms.currentPlatform].obstacle.y - this.y + 5);
+        strokeWeight(2);
+        stroke(255, 90, 50);
+        line(0 + facingDelta, 0, this.vision3, 0);
+        line(this.vision3, 0, this.vision3, 10);
     
 
-/*         // wind
-        stroke(150,150,255);
-        line(0,0, 10* this.headwind, 0);
-        ellipse(10* this.headwind, 0, 4, 4);
-
-        // gravity
-        stroke(150,50,75);
-        line(0,0, 0, 10 * this.duckGravity);
-        ellipse(0, 10 * this.duckGravity, 4, 4); */
-
-        // actions
+        // display duck actions
         stroke(255,0,50);
         strokeWeight(2);
         // left
@@ -175,11 +174,13 @@ class Duck {
       this.move();
   
         // THIS NEEDS MOVED INTO PLATFORMS
+        this.platforms.currentPlatform = 0;
       // passed first platform
       if (this.y + this.height < this.platforms.platforms[1].y){
           if (!this.platforms.platforms[1].wasReached){
-            this.score +=5000; 
+            this.score +=1000; 
             this.platforms.platforms[1].wasReached = true;
+            this.platforms.platforms[0].upSnake.scaled = true;
           }
         
         this.platforms.currentPlatform = 1;
@@ -188,8 +189,9 @@ class Duck {
       // passed second platform
       if (this.y + this.height < this.platforms.platforms[2].y){
         if (!this.platforms.platforms[2].wasReached){
-          this.score +=50000; 
+          this.score +=10000; 
           this.platforms.platforms[2].wasReached = true;
+          this.platforms.platforms[1].upSnake.scaled = true;
         }
         
         this.platforms.currentPlatform = 2;
@@ -198,8 +200,9 @@ class Duck {
       // passed third platform
       if (this.y + this.height < this.platforms.platforms[3].y){
         if (!this.platforms.platforms[3].wasReached){
-          this.score +=500000; 
+          this.score +=50000; 
           this.platforms.platforms[3].wasReached = true;
+          this.platforms.platforms[2].upSnake.scaled = true;
         }
 
         this.platforms.currentPlatform = 3;
@@ -242,22 +245,26 @@ class Duck {
         pauseBecauseDead = false;
       }
 
-      // check all obstacles
-      for(let i=0; i<this.platforms.platforms.length; i++){
+      // check all obstacles - MOVE TO OBSTACLES
+/*       for(let i=0; i<this.platforms.platforms.length; i++){
         if (this.platforms.platforms[i].obstacle.collided(this))
           {
             this.dead = true;
             pauseBecauseDead = true;
           }
+          this.platforms.platforms[i].obstacle.playerPassed(this); // scoring at obstacle
+      } */
 
-          if (this.platforms.platforms[i].obstacle.playerPassed(this)) {
-            this.score += 1000; // +1000 points for jumping a fire beaver
-          }
 
+      if (this.platforms.platforms[this.platforms.currentPlatform].obstacle.collided(this))
+      {
+        this.dead = true;
+        pauseBecauseDead = true;
       }
+      //this.platforms.platforms[this.platforms.currentPlatform].obstacle.playerPassed(this); // scoring at obstacle
 
   
-      // check all platforms
+      // check all platforms - MOVE TO PLATFORMS
       if (this.platforms.collided(this)) {
 
         // check for snakes
@@ -312,7 +319,7 @@ class Duck {
         if (!this.dead && this.atSnake) {
           this.velX = 0;
           this.velY = -3;
-          this.score += 10; //100 // helps tease them up the snake
+          //this.score += 10; //100 // helps tease them up the snake
         } else if ((!this.dead)&&(this.y + this.height == this.platforms.platforms[this.platforms.currentPlatform].y)) {
             //this.duckGravity = gravity; 
           this.velX = 2 * this.velX;
@@ -350,34 +357,30 @@ class Duck {
     look() {
       // calc visions
       var currentPlatform = this.platforms.platforms[this.platforms.currentPlatform];
+      var abovePlatform = this.platforms.platforms[this.platforms.currentPlatform + 1];
       var upSnake = currentPlatform.upSnake;
-      //var downSnake = currentPlatform.downSnake;
-
       var platformObstacle = currentPlatform.obstacle;
-      var upSnakeDist = this.x - upSnake.x;
-      var dnSnakeDist = -560;
-/*       if (downSnake != null){
-        dnSnakeDist = this.x - downSnake.x; // duck can see downSnake
-      } */
+      var platformObstacleAbove = abovePlatform.obstacle; 
+      var upSnakeDist = upSnake.x - this.x;
       var duckElevation = 810 - this.y;
-      var distObstacle = this.x - platformObstacle.x;
+      var distObstacle = platformObstacle.x - this.x;
+      var distObstacleAbove = platformObstacleAbove.x - this.x;
 
       this.vision = [];
 
       this.vision[0] = map(upSnakeDist, -560, 560, -1, 1); // duck can see upSnake 
-      this.vision[1] = map(this.x, -560, 560, -1, 1); // duck can see downSnake 
-      //this.vision[1] = map(dnSnakeDist, -560, 560, -1, 1); // duck can see downSnake
+      this.vision[1] = map(this.x, -560, 560, -1, 1); // duck x position
       this.vision[2] = map(duckElevation, 0, 810, 0, 1); // duck elevation
       this.vision[3] = map(distObstacle , -560, 560, -1, 1); // obstacle
+      this.vision[4] = map(distObstacleAbove , -560, 560, -1, 1); // obstacle above
   
         
       // set player object vision properties for display
       this.vision0 = upSnakeDist;
       this.vision1 = this.x;
-      //this.vision1 = dnSnakeDist;
       this.vision2 = duckElevation;
       this.vision3 = distObstacle;
-  
+      this.vision4 = distObstacleAbove;
     }
   
   
@@ -446,8 +449,10 @@ class Duck {
     //---------------------------------------------------------------------------------------------------------------------------------------------------------
     //fot Genetic algorithm
     calculateFitness() {
-      this.fitness = 1 + this.score * this.score + this.lifespan / 20.0;
-      //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<replace
+      //this.fitness = 1 + this.score * this.score + this.lifespan / 20.0;
+
+      this.fitness = 1 + this.score * 2 + this.lifespan / 5.0; //new fitness - LOWER
+      
     }
   
     //---------------------------------------------------------------------------------------------------------------------------------------------------------

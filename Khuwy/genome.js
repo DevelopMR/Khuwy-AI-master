@@ -516,10 +516,10 @@ class Genome {
   // add player detail HACK
 
   try{
-    var tPosX = 682; 
+    var tPosX = 673; 
     var tPosY =  nodePoses[0].x - 45; // relate to first node
     var tPosY2 = nodePoses[0].x - 30;
-    var xSpacer = 67;
+    var xSpacer = 57;
   
     textAlign(CENTER);
     noStroke();
@@ -531,20 +531,23 @@ class Genome {
     // vision 1 duck can see downSnake 
     // vision 2 duck elevation
     // vision 3 obstacle
+    // vision 4 obstacle up
 
-    //text("upSnake   dnSnake      elev          obst", tPosX -13, tPosY);
+    
     textSize(10);
     text("UPSNAKE", tPosX , tPosY);
     text("XPOS", tPosX + 1 * xSpacer, tPosY);
     text("ELEV", tPosX + 2 * xSpacer, tPosY);
     text("OBST", tPosX + 3 * xSpacer, tPosY);
-    text("BIAS", tPosX + 4 * xSpacer, tPosY);
+    text("OBSTUP", tPosX + 4 * xSpacer, tPosY);
+    text("BIAS", tPosX + 5 * xSpacer, tPosY);
 
     textSize(14);
     text(player.vision0.toFixed(1), tPosX, tPosY2);
     text(player.vision1.toFixed(1), tPosX + 1 * xSpacer, tPosY2);
     text(player.vision2.toFixed(1), tPosX + 2 * xSpacer, tPosY2);
     text(player.vision3.toFixed(1), tPosX + 3 * xSpacer, tPosY2);
+    text(player.vision4.toFixed(1), tPosX + 4 * xSpacer, tPosY2);
 
   }
   catch(err)

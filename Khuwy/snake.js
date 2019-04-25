@@ -6,6 +6,7 @@ class Snake {
       this.y = yPos;
       this.width = 46; 
       this.height = 150; 
+      this.scaled = false;
     }
   
     show() {
@@ -57,7 +58,10 @@ class Snake {
                     }
                 }
                 
-                p.score+= 10 + (this.y + this.height - p.y) / 1000; // added incentive to go to snakes and go up
+                if (!this.scaled) {
+                    p.score+= 2 + (this.y + this.height - p.y) / 1000 + 5*p.platforms.currentPlatform; // added incentive to go to snakes and go up // go minimal!
+                }
+                
                 
                 return true;
             }            

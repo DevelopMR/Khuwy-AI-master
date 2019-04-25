@@ -12,6 +12,7 @@ class Obstacle {
         this.xVel = windDir * (.85 + random(2.5));
 
         this.wasPassed = false;
+        this.passesRemaining = 3;
     }
   
   
@@ -39,35 +40,40 @@ class Obstacle {
   
     playerPassed(p) {
 
-        // only count once
-        if (this.wasPassed == true){
-
-            if (this.xVel > 0 ){
-                if(p.x + p.width < this.x){
-                    this.wasPassed = true;
-                    p.log.push("Jumped a Fire Beaver!");
-
-                    if (p.isBest){
-                        bestDuckLog.push("Jumped a Fire Beaver!");
-                    }
-
-                    return true;
+        if (this.xVel > 0) {
+            if (p.x + p.width < this.x) {
+                this.wasPassed = !this.wasPassed;
+                p.log.push("Jumped a Fire Beaver!");
+                this.passesRemaining--;
+                if (this.passesRemaining > 0){
+                    p.score += 5 * this.passesRemaining * p.platforms.currentPlatform;
                 }
-            }
-            if (this.xVel < 0 ){
-                if(p.x < this.x + this.width){
-                    this.wasPassed = true;
-                    p.log.push("Jumped a Fire Beaver!");
 
-                    if (p.isBest){
-                        bestDuckLog.push("Jumped a Fire Beaver!");
-                    }
-
-                    return true;
+                if (p.isBest) {
+                    bestDuckLog.push("Jumped a Fire Beaver!");
                 }
-            }
 
+                return true;
+            }
         }
+        if (this.xVel < 0) {
+            if (p.x < this.x + this.width) {
+                this.wasPassed = !this.wasPassed;
+                p.log.push("Jumped th Fire Beaver!");
+                this.passesRemaining--;
+                if (this.passesRemaining > 0){
+                    p.score += 5 * this.passesRemaining * p.platforms.currentPlatform;
+                }
+
+                if (p.isBest) {
+                    bestDuckLog.push("Jumped he Fire Beaver!");
+                }
+
+                return true;
+            }
+        }
+
+        
         return false;
     }
   
@@ -82,6 +88,17 @@ class Obstacle {
             }
 
              return true;
+         }
+         else if (p.y + p.height < this.y){
+
+            p.log.push("Jumping a beaver!");
+            if (p.isBest){
+                bestDuckLog.push("Jumping a beaver!");
+            }
+
+            p.score += 4 * (p.platforms.currentPlatform + 1);
+            return false;
+
          }
 
        } 
