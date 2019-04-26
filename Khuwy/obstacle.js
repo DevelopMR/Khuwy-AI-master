@@ -1,15 +1,15 @@
 class Obstacle {
-    constructor(yPos, windDir) {
+    constructor(yPos, startDir) {
  
         this.height = 16;
         this.width = 44;
         this.x=32;
 
-        if (windDir < 0){
+        if (startDir < 0){
             this.x=570;
         }
         this.y=yPos - this.height;
-        this.xVel = windDir * (.85 + random(2.5));
+        this.xVel = startDir * (.85 + random(2.5));
 
         this.wasPassed = false;
         this.passesRemaining = 3;
@@ -96,7 +96,7 @@ class Obstacle {
                 bestDuckLog.push("Jumping a beaver!");
             }
 
-            p.score += 4 * (p.platforms.currentPlatform + 1);
+            p.score += 5 * (p.platforms.currentPlatform + 1);
             return false;
 
          }

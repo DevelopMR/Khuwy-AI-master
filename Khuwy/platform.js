@@ -1,19 +1,19 @@
 class Platform {
 
-    constructor(pParent, xPos, yPos, pWidth, windDir, pUpSnake, pDownSnake) {
+    constructor(pParent, xPos, yPos, pWidth, startDir, pUpSnake, pDownSnake) {
       
       this.parent = pParent;
       this.x = xPos;
       this.y = yPos;
       this.width = pWidth;
-      this.windDirection = windDir; // 1 or -1
+      this.startDirection = startDir; // 1 or -1
       this.upSnake = pUpSnake;
       this.downSnake;
       if (pDownSnake != null){
           this.downSnake = pDownSnake;
       }
 
-      this.obstacle = new Obstacle(yPos, windDir);
+      this.obstacle = new Obstacle(yPos, startDir);
 
       this.wasReached = false;
   

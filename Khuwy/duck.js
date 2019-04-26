@@ -178,7 +178,7 @@ class Duck {
       // passed first platform
       if (this.y + this.height < this.platforms.platforms[1].y){
           if (!this.platforms.platforms[1].wasReached){
-            this.score +=1000; 
+            this.score +=1500; 
             this.platforms.platforms[1].wasReached = true;
             this.platforms.platforms[0].upSnake.scaled = true;
           }
@@ -189,7 +189,7 @@ class Duck {
       // passed second platform
       if (this.y + this.height < this.platforms.platforms[2].y){
         if (!this.platforms.platforms[2].wasReached){
-          this.score +=10000; 
+          this.score +=3000; 
           this.platforms.platforms[2].wasReached = true;
           this.platforms.platforms[1].upSnake.scaled = true;
         }
@@ -200,7 +200,7 @@ class Duck {
       // passed third platform
       if (this.y + this.height < this.platforms.platforms[3].y){
         if (!this.platforms.platforms[3].wasReached){
-          this.score +=50000; 
+          this.score +=10000; 
           this.platforms.platforms[3].wasReached = true;
           this.platforms.platforms[2].upSnake.scaled = true;
         }
@@ -213,7 +213,7 @@ class Duck {
       }
 
       // update turn score (reward for living)
-      this.score++;
+      this.score +=.1;
 
     }
 

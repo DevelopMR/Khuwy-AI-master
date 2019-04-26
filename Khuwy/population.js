@@ -60,6 +60,9 @@ class Population {
               this.players[i].show();
               firstShown = true;
             }
+            else if (this.players[i].isBest){
+              this.players[i].show();
+            }
             if (this.players[i].score > this.globalBestScore) {
               this.globalBestScore = this.players[i].score;
             }

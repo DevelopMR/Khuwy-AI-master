@@ -1,6 +1,6 @@
 // initial variables
 var gravity = .4;
-var headwind = .1; // speed of platform flow, direction will change per platform
+var headwind = .25; // speed of platform flow, direction will change per platform?
 var humanPlayer;
 var humanPlaying;
 var pauseBecauseDead = false;
