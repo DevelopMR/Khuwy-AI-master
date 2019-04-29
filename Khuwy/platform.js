@@ -7,13 +7,18 @@ class Platform {
       this.y = yPos;
       this.width = pWidth;
       this.startDirection = startDir; // 1 or -1
-      this.upSnake = pUpSnake;
+
+      this.upSnake;
+      if (pUpSnake != null){
+        this.upSnake = pUpSnake;
+      }
+
       this.downSnake;
       if (pDownSnake != null){
           this.downSnake = pDownSnake;
       }
 
-      this.obstacle = new Obstacle(yPos, startDir);
+      this.obstacle = new Obstacle(yPos, startDir, xPos, xPos+  pWidth);
 
       this.wasReached = false;
   
@@ -30,7 +35,10 @@ class Platform {
       line(this.x, this.y, this.x + this.width, this.y);  
 
       // show up snake
-      this.upSnake.show();
+      if (this.upSnake != null){
+        this.upSnake.show();
+      }
+
       // show obstacles
       this.obstacle.show();
 
@@ -43,7 +51,10 @@ class Platform {
     }
   
     collided(p) {
-      //return p.y + p.size / 2 >= this.topPixelCoord;
+      if((p.y + p.height > this.y)&&(p.y < this.y))
+        {
+            return true;
+        }
     }
   }
   

@@ -5,7 +5,7 @@ class Snake {
       this.x = xPos;
       this.y = yPos;
       this.width = 46; 
-      this.height = 150; 
+      this.height = 140; 
       this.scaled = false;
     }
   
@@ -13,7 +13,6 @@ class Snake {
         
         image(snakeSprite, this.x, this.y, this.width, this.height); 
     }
-  
   
     update() {
   
@@ -24,10 +23,10 @@ class Snake {
         p.atUpSnake = false;
         p.atDownSnake = false;
         p.duckGravity = gravity; // 
+        var snakeTailPad = 0;
         if ((p.x + p.width > this.x) && (p.x < this.x + this.width)){
-            //p.duckGravity = gravity;
             
-            if ((p.y + p.height > this.y) && (p.y < this.y + this.height)){
+            if ((p.y + p.height > this.y) && (p.y < this.y + this.height + snakeTailPad)){
                 p.atSnake = true;
                 p.duckGravity = 0;
                 if (this === p.platforms.platforms[p.platforms.currentPlatform].downSnake){
@@ -59,7 +58,7 @@ class Snake {
                 }
                 
                 if (!this.scaled) {
-                    p.score+= 2 + (this.y + this.height - p.y) / 1000 + 5*p.platforms.currentPlatform; // added incentive to go to snakes and go up // go minimal!
+                    p.score+= 2 + (this.y + this.height - p.y) / 2000 + 5*p.platforms.currentPlatform; // added incentive to go to snakes and go up // go minimal!
                 }
                 
                 

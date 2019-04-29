@@ -6,16 +6,21 @@ class Platforms {
 
       this.platforms = [];
 
-      var level0Snake = new Snake(83,680);
-      var level1Snake = new Snake(503,507);
-      var level2Snake = new Snake(51,385);
-      var level3Snake = new Snake(504,258);
+      var level0Snake = new Snake(83,690);
+      var level1Snake = new Snake(503,517);
+      var level2Snake = new Snake(51,395);
+      var level3Snake = new Snake(504,268);
+
+      var level4Snake = new Snake(273,158);
 
       this.platforms[0] = new Platform(this, 34, 817, 560, 1, level0Snake, null);
       this.platforms[1] = new Platform(this, 34, 695, 560, -1, level1Snake, level0Snake);
       this.platforms[2] = new Platform(this, 34, 517, 560, 1, level2Snake, level1Snake);
-      this.platforms[3] = new Platform(this, 37, 410, 160, -1, level3Snake, level2Snake);
-  
+      this.platforms[3] = new Platform(this, 37, 410, 560, -1, level3Snake, level2Snake);
+
+      this.platforms[4] = new Platform(this, 267, 276, 325, 1, level4Snake, level3Snake);
+      this.platforms[5] = new Platform(this, 270, 161, 321, -1, null, level4Snake);
+
     }
   
     show() {
@@ -32,11 +37,22 @@ class Platforms {
 
     collided(p) {
 
-        if(((p.y + p.height > this.platforms[0].y)&&(p.y < this.platforms[0].y)) || ((p.y + p.height > this.platforms[1].y)&&(p.y < this.platforms[1].y))
-            || ((p.y + p.height > this.platforms[2].y)&&(p.y < this.platforms[2].y)) || ((p.y + p.height > this.platforms[3].y)&&(p.y < this.platforms[3].y)))
-        {
+        if (this.platforms[0].collided(p)){
             return true;
         }
+
+        if (this.platforms[1].collided(p)){
+            return true;
+        }
+
+        if (this.platforms[2].collided(p)){
+            return true;
+        }
+
+        if (this.platforms[3].collided(p)){
+            return true;
+        }
+
       }
 
 

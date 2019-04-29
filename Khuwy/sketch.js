@@ -1,6 +1,6 @@
 // initial variables
 var gravity = .4;
-var headwind = .25; // speed of platform flow, direction will change per platform?
+var headwind = .1; // speed of platform flow, direction will change per platform?
 var humanPlayer;
 var humanPlaying;
 var pauseBecauseDead = false;
@@ -43,6 +43,7 @@ function setup() {
     population = new Population(1000);
 
     bestDuckLog = []; // set as empty array - zeros each new setup
+    deathLog = new DeathLog();
   
     
     humanPlayer = new Duck(); // MMMM
@@ -120,21 +121,38 @@ function showLuckyDuckData(){
             text("SCORE " + luckyDuck.score.toFixed(0), 0, 0);
             textSize(20);
             text("FITNESS " + luckyDuck.fitness.toFixed(0), 0, 27);
-            text("GRAVITY " + luckyDuck.duckGravity, 0, 51);
+            text("GRAV " + luckyDuck.duckGravity + "  PLAT "+ luckyDuck.platforms.currentPlatform, 0, 51);
             
             text("LOG", 0, 75);
             textAlign(LEFT);
             textSize(16);
+            
+
             i = 0;
             generationLog.forEach(entry => {
                 text(entry, 0, 98 + i*20);
                 i++;
             });
 
-            bestDuckLog.forEach(entry => {
-                text(entry, 0, 98 + i*20);
-                i++;
-            });
+            if (bestDuckLog.length < 18) {
+                bestDuckLog.forEach(entry => {
+                    text(entry, 0, 98 + i*20);
+                    i++;
+                });
+
+
+            } else {
+
+                i = 0;
+                for (j=bestDuckLog.length-17; j<bestDuckLog.length; j++)
+                {
+                    text(bestDuckLog[j], 0, 158 + i*20);
+                    i++;
+                }
+            }
+            
+
+            
             pop();
         }
     }

@@ -1,17 +1,19 @@
 class Obstacle {
-    constructor(yPos, startDir) {
+    constructor(yPos, startDir, leftLimit, rightLimit) {
  
         this.height = 16;
         this.width = 44;
-        this.x=32;
+        this.leftLimit = leftLimit;
+        this.rightLimit = rightLimit;
+        this.x= leftLimit + 32;
 
         if (startDir < 0){
-            this.x=570;
+            this.x= rightLimit -32;
         }
         this.y=yPos - this.height;
         this.xVel = startDir * (.85 + random(2.5));
 
-        this.wasPassed = false;
+        //this.wasPassed = false;
         this.passesRemaining = 3;
     }
   
@@ -30,15 +32,15 @@ class Obstacle {
     update() {
       
         this.x += this.xVel; 
-        if ((this.x < 32)||(this.x > 591)){
+        if ((this.x < this.leftLimit)||(this.x > this.rightLimit)){
             this.xVel = -this.xVel;
-            this.wasPassed = false;
+            //this.wasPassed = false;
         }
   
     }
   
   
-    playerPassed(p) {
+    /* OLDplayerPassed(p) {
 
         if (this.xVel > 0) {
             if (p.x + p.width < this.x) {
@@ -75,13 +77,14 @@ class Obstacle {
 
         
         return false;
-    }
+    } */
   
     collided(p) {
 
         // padding added (+13/-5) for duck feet in x below 
+        var beaverClaws = 10; // beaver claws - below the platforms hits
        if ((p.x + p.width - 5 > this.x) && (p.x + 13 < this.x + this.width)){
-         if ((p.y + p.height > this.y) && (p.y < this.y + this.height)){
+         if ((p.y + p.height > this.y) && (p.y < this.y + this.height + beaverClaws)){
             p.log.push("Ouch, hit a Fire Beaver!");
             if (p.isBest){
                 bestDuckLog.push("Ouch, hit a Fire Beaver!");
@@ -96,7 +99,7 @@ class Obstacle {
                 bestDuckLog.push("Jumping a beaver!");
             }
 
-            p.score += 5 * (p.platforms.currentPlatform + 1);
+            p.score += 10 * Math.pow((p.platforms.currentPlatform + 1),2);
             return false;
 
          }

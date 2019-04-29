@@ -91,6 +91,7 @@ class Duck {
       // vision1 = xPos;
       // vision2 = duckElevation;
       // vision3 = distObstacle;
+      // vision4 = distObstacle Above
 
         // draw visions for Lucky Duck
         push();
@@ -172,41 +173,6 @@ class Duck {
       this.lifespan++;
       this.updateObstacles();
       this.move();
-  
-        // THIS NEEDS MOVED INTO PLATFORMS
-        this.platforms.currentPlatform = 0;
-      // passed first platform
-      if (this.y + this.height < this.platforms.platforms[1].y){
-          if (!this.platforms.platforms[1].wasReached){
-            this.score +=1500; 
-            this.platforms.platforms[1].wasReached = true;
-            this.platforms.platforms[0].upSnake.scaled = true;
-          }
-        
-        this.platforms.currentPlatform = 1;
-      }
-
-      // passed second platform
-      if (this.y + this.height < this.platforms.platforms[2].y){
-        if (!this.platforms.platforms[2].wasReached){
-          this.score +=3000; 
-          this.platforms.platforms[2].wasReached = true;
-          this.platforms.platforms[1].upSnake.scaled = true;
-        }
-        
-        this.platforms.currentPlatform = 2;
-      }
-
-      // passed third platform
-      if (this.y + this.height < this.platforms.platforms[3].y){
-        if (!this.platforms.platforms[3].wasReached){
-          this.score +=10000; 
-          this.platforms.platforms[3].wasReached = true;
-          this.platforms.platforms[2].upSnake.scaled = true;
-        }
-
-        this.platforms.currentPlatform = 3;
-      }
 
       if (!dieOff) {
         this.checkCollisions();
@@ -222,8 +188,8 @@ class Duck {
         this.velY += this.duckGravity;
         this.velX += headwind;
          
+        this.velX = constrain(this.velX, -25, 25);
         this.velY = constrain(this.velY, -25, 25);
-        
 
         // position from velocity
           this.y += this.velY;
@@ -245,40 +211,67 @@ class Duck {
         pauseBecauseDead = false;
       }
 
-      // check all obstacles - MOVE TO OBSTACLES
-/*       for(let i=0; i<this.platforms.platforms.length; i++){
-        if (this.platforms.platforms[i].obstacle.collided(this))
-          {
-            this.dead = true;
-            pauseBecauseDead = true;
-          }
-          this.platforms.platforms[i].obstacle.playerPassed(this); // scoring at obstacle
-      } */
-
-
       if (this.platforms.platforms[this.platforms.currentPlatform].obstacle.collided(this))
       {
         this.dead = true;
         pauseBecauseDead = true;
       }
-      //this.platforms.platforms[this.platforms.currentPlatform].obstacle.playerPassed(this); // scoring at obstacle
+      
+      
+      // platforms
+        // THIS NEEDS MOVED INTO PLATFORMS
+        this.platforms.currentPlatform = 0;
+        var platformMargin = 5; //
+      // passed first platform
+      if (this.y + this.height < this.platforms.platforms[1].y + platformMargin){
+          if (!this.platforms.platforms[1].wasReached){
+            this.score +=1500; 
+            this.platforms.platforms[1].wasReached = true;
+            this.platforms.platforms[0].upSnake.scaled = true;
+          }
+        
+        this.platforms.currentPlatform = 1;
+      }
+
+      // passed second platform
+      if (this.y + this.height < this.platforms.platforms[2].y + platformMargin){
+        if (!this.platforms.platforms[2].wasReached){
+          this.score +=3000; 
+          this.platforms.platforms[2].wasReached = true;
+          this.platforms.platforms[1].upSnake.scaled = true;
+        }
+        
+        this.platforms.currentPlatform = 2;
+      }
+
+      // passed third platform
+      if (this.y + this.height < this.platforms.platforms[3].y + platformMargin){
+        if (!this.platforms.platforms[3].wasReached){
+          this.score +=10000; 
+          this.platforms.platforms[3].wasReached = true;
+          this.platforms.platforms[2].upSnake.scaled = true;
+        }
+
+        this.platforms.currentPlatform = 3;
+      }
 
   
       // check all platforms - MOVE TO PLATFORMS
-      if (this.platforms.collided(this)) {
+      //if (this.platforms.collided(this)) {
 
         // check for snakes
         var snake1 = this.platforms.platforms[this.platforms.currentPlatform].upSnake;
         var snake2 = this.platforms.platforms[this.platforms.currentPlatform].downSnake;
 
-        this.atSnake = false;
-        this.duckGravity = gravity; // keep for cycle
-
-        snake1.collided(this); // upsnake
-        if (snake2 != null){ // downsnake
-            snake2.collided(this);
+        // only need to get one snake hit
+        // OTHERWISE THE SECOND CANCELS THE FIRST - check and update
+        if (!snake1.collided(this)) {
+          if (snake2 != null){ // downsnake
+              snake2.collided(this);
+          }
         }
 
+      if (this.platforms.collided(this)) {
         if (!this.atSnake){
             this.y = this.platforms.platforms[this.platforms.currentPlatform].y - this.height;
         } 
@@ -302,10 +295,14 @@ class Duck {
         }
 
   
-      if (this.dead && this.velY < 0) {
-        this.velY = 0;
+      if (this.dead) {
+        // add to DeathLog
+        deathLog.addDeadDuck(this);
+
+        if (this.velY < 0){
+          this.velY = 0;
+        }
       }
-  
   
     }
   
@@ -315,43 +312,47 @@ class Duck {
 
     // jump / up
     jump() {
-       // if (!this.dead && this.atUpSnake) {
-        if (!this.dead && this.atSnake) {
-          this.velX = 0;
-          this.velY = -3;
-          //this.score += 10; //100 // helps tease them up the snake
-        } else if ((!this.dead)&&(this.y + this.height == this.platforms.platforms[this.platforms.currentPlatform].y)) {
-            //this.duckGravity = gravity; 
-          this.velX = 2 * this.velX;
-          this.velY = -6;
-      }
-
+       
+      var plat = this.platforms.platforms[this.platforms.currentPlatform].y; //magic
+          if (this.atSnake) {
+        //if (this.atUpSnake) {
+            this.velX = this.velX/1.25;
+            this.velY = -3;
+            this.duckGravity = 0; // quick test AA
+            
+          } else if (this.y + this.height == plat) {
+            this.duckGravity = gravity;  // quick test AA
+            this.velX = 2 * this.velX;
+            this.velY = -6;
+          }
+      
 
     }
   
     right(){
-      if (!this.dead) {
+      
           this.velX = 4;
-      }
+      
     }
   
     left(){
-      if (!this.dead) {
+      
           this.velX = -4;
-      }
+     
     }
 
     // down / stop
     down(){
-        if (!this.dead && this.atSnake) {
-            this.velX = 0;
-        this.velY = 2;
+       
+        if (this.atSnake) {
+            this.velX = this.velX/2;
+            this.velY = 2;
         }
         else{
             this.velX = 0;
         }
     }
-    
+  
   
     //-------------------------------------------------------------------neat functions
     look() {
@@ -392,29 +393,31 @@ class Duck {
         var maxIndex = 0;
         //get the output of the neural network
         this.decision = this.brain.feedForward(this.vision);
-  
-        if (this.decision[0] > 0.6) {
-          this.left();
-        }
-  
-        if (this.decision[1] > 0.6) {
-          this.right();
-        }
-  
-        if (this.decision[2] > 0.6) {
-          this.jump(); // up / jump
-        }
 
-        if (this.decision[3] > 0.6) {
-          this.down();
-        }
-
-
-        this.response0 = this.decision[0];
-        this.response1 = this.decision[1];
-        this.response2 = this.decision[2];
-        this.response3 = this.decision[3];
+        if (!this.dead){
   
+          if (this.decision[0] > 0.6) {
+            this.left();
+          }
+    
+          if (this.decision[1] > 0.6) {
+            this.right();
+          }
+    
+          if (this.decision[2] > 0.6) {
+            this.jump(); // up / jump
+          }
+
+          if (this.decision[3] > 0.6) {
+            this.down();
+          }
+
+
+          this.response0 = this.decision[0];
+          this.response1 = this.decision[1];
+          this.response2 = this.decision[2];
+          this.response3 = this.decision[3];
+        }
   
       }
       //---------------------------------------------------------------------------------------------------------------------------------------------------------
