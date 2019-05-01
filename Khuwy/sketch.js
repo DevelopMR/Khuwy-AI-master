@@ -10,6 +10,8 @@ var dieOff = false;
 var bestDuckLog; // global
 var bestDuckLogYPos = 400; // global
 
+var deathLog = new DeathLog(); // DeathLog is a GLOBAL
+
 // neat global variables
 
 var nextConnectionNo = 1000;
@@ -43,7 +45,7 @@ function setup() {
     population = new Population(1000);
 
     bestDuckLog = []; // set as empty array - zeros each new setup
-    deathLog = new DeathLog();
+    //deathLog = new DeathLog();
   
     
     humanPlayer = new Duck(); // MMMM

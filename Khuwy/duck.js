@@ -236,7 +236,7 @@ class Duck {
       // passed second platform
       if (this.y + this.height < this.platforms.platforms[2].y + platformMargin){
         if (!this.platforms.platforms[2].wasReached){
-          this.score +=3000; 
+          this.score +=2500; 
           this.platforms.platforms[2].wasReached = true;
           this.platforms.platforms[1].upSnake.scaled = true;
         }
@@ -247,13 +247,37 @@ class Duck {
       // passed third platform
       if (this.y + this.height < this.platforms.platforms[3].y + platformMargin){
         if (!this.platforms.platforms[3].wasReached){
-          this.score +=10000; 
+          this.score +=3500; 
           this.platforms.platforms[3].wasReached = true;
           this.platforms.platforms[2].upSnake.scaled = true;
         }
 
         this.platforms.currentPlatform = 3;
       }
+
+      // passed fourth platform
+      if (this.y + this.height < this.platforms.platforms[4].y + platformMargin){
+        if (!this.platforms.platforms[4].wasReached){
+          this.score +=5000; 
+          this.platforms.platforms[4].wasReached = true;
+          this.platforms.platforms[3].upSnake.scaled = true;
+        }
+
+        this.platforms.currentPlatform = 4;
+      }
+
+
+      // passed top platform
+      if (this.y + this.height < this.platforms.platforms[5].y + platformMargin){
+        if (!this.platforms.platforms[5].wasReached){
+          this.score +=6000; 
+          this.platforms.platforms[5].wasReached = true;
+          this.platforms.platforms[4].upSnake.scaled = true;
+        }
+
+        this.platforms.currentPlatform = 5;
+      }
+
 
   
       // check all platforms - MOVE TO PLATFORMS

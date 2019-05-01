@@ -53,6 +53,14 @@ class Platforms {
             return true;
         }
 
+        if (this.platforms[4].collided(p)){
+            return true;
+        }
+
+        if (this.platforms[5].collided(p)){
+            return true;
+        }
+
       }
 
 

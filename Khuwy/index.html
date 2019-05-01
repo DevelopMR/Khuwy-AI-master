@@ -5,6 +5,7 @@
   <script language="javascript" type="text/javascript" src="libraries/p5.dom.js"></script>
   <script language="javascript" type="text/javascript" src="libraries/p5.sound.js"></script>
 
+  <script language="javascript" type="text/javascript" src="DeathLog.js"></script>
   <script language="javascript" type="text/javascript" src="sketch.js"></script>
   
   
@@ -14,7 +15,7 @@
 
 <!--   <script language="javascript" type="text/javascript" src="Pipe.js"></script>-->
   <script language="javascript" type="text/javascript" src="obstacle.js"></script>
-  <script language="javascript" type="text/javascript" src="DeathLog.js"></script> 
+   
   <script language="javascript" type="text/javascript" src="snake.js"></script>
   <script language="javascript" type="text/javascript" src="platform.js"></script>
   <script language="javascript" type="text/javascript" src="platforms.js"></script>
@@ -28,13 +29,335 @@
   <script language="javascript" type="text/javascript" src="Species.js"></script>
   <script language="javascript" type="text/javascript" src="Genome.js"></script>
 
+
+  <script type="text/javascript">
+    function showDiv() {
+    
+      document.getElementById('bodyDIV').style.display = 'block';
+    }
+  </script>
+
   <style>
     .duckLog { top: 300}
     
   </style>
 
+<style>
+    body {
+      color: #ffffff;
+      font-family:Monospace;
+      font-size:13px;
+      text-align:left;
+      font-weight: bold;
+      /* background-color: #000000; */
+      margin: 0px;
+      overflow: hidden;
+    }
+    #container {
+      background-color: #ffe; 
+      position: absolute;
+      top: 0px; left: 1000px; width: 400px;
+      padding: 5px;
+      z-index:100;
+    }
+
+    #bodyDIV{display: none;}
+  </style>
+
 </head>
 
-<body>
+<body onload="showDiv();">
+    <div id="bodyDIV">
+      <div id="info"></div>
+      <div id="container"></div>
+
+      <script src="three_js-master/build/three.min.js"></script>
+
+      <script src="three_js-master/examples/js/WebGL.js"></script>
+      <script src="three_js-master/examples/js/controls/OrbitControls.js"></script>
+      <script src="three_js-master/examples/js/libs/stats.min.js"></script>
+
+      <script type="x-shader/x-vertex" id="vertexshader">
+        attribute float size;
+        attribute vec4 ca;
+        varying vec4 vColor;
+        void main() {
+          vColor = ca;
+          vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+          gl_PointSize = size * ( 150.0 / -mvPosition.z );
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      </script>
+
+      <script type="x-shader/x-fragment" id="fragmentshader">
+        uniform vec3 color;
+        uniform sampler2D texture;
+        varying vec4 vColor;
+        void main() {
+          vec4 outColor = texture2D( texture, gl_PointCoord );
+          if ( outColor.a < 0.5 ) discard;
+          gl_FragColor = outColor * vec4( color * vColor.xyz, 1.0 );
+          float depth = gl_FragCoord.z / gl_FragCoord.w;
+          const vec3 fogColor = vec3( 0.0 );
+          float fogFactor = smoothstep( 200.0, 600.0, depth );
+          gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+        }
+      </script>
+
+
+      <script>
+      if ( WEBGL.isWebGLAvailable() === false ) {
+        document.body.appendChild( WEBGL.getWebGLErrorMessage() );
+      }
+      var rendererDL, sceneDL, cameraDL, statsDL;
+      var object;
+      var vertices1;
+      var WIDTH = 880; //window.innerWidth;
+      var HEIGHT = 910; //window.innerHeight;
+
+      
+      setTimeout(init, 500);
+      //init();
+      animate();
+
+      
+
+      function init() {
+
+        cameraDL = new THREE.PerspectiveCamera( 40, WIDTH / HEIGHT, 1, 1000 );
+        //cameraDL.position.set(127, 127, 250);
+        cameraDL.position.set(285, 165, 155);
+        cameraDL.up = new THREE.Vector3(0,1,0);
+       
+
+        sceneDL = new THREE.Scene();
+
+        sceneDL.background = new THREE.Color(0xffffee);
+        //sceneDL.add( new THREE.AmbientLight( 0xFFFFFF ) );
+
+        
+        var texture = new THREE.TextureLoader().load( "three_js-master/examples/textures/sprites/ball.png" );
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        var material = new THREE.ShaderMaterial( {
+          uniforms: {
+            amplitude: { value: 1.0 },
+            color: { value: new THREE.Color( 0xffffff ) },
+            texture: { value: texture }
+          },
+          vertexShader: document.getElementById( 'vertexshader' ).textContent,
+          fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+        } );
+
+
+        // renderer
+        rendererDL = new THREE.WebGLRenderer();
+        rendererDL.setPixelRatio( window.devicePixelRatio );
+        rendererDL.setSize( WIDTH, HEIGHT );
+
+
+        // controls
+				var controls = new THREE.OrbitControls( cameraDL, rendererDL.domElement );
+				controls.maxPolarAngle = Math.PI * 0.5;
+				controls.minDistance = 100;
+        controls.maxDistance = 2000;
+        controls.target = new THREE.Vector3(55, 70, 0);
+        controls.update();
+        
+        var container = document.getElementById( 'container' );
+        container.appendChild( rendererDL.domElement );
+        //statsDL = new Stats();
+        //container.appendChild( statsDL.dom );
+        //
+        window.addEventListener( 'resize', onWindowResize, false );
+
+        //
+        setTimeout(QueryDeathLog, 100);
+
+      }
+
+
+
+
+      function QueryDeathLog(){
+        var KhuwyTexture = new THREE.TextureLoader().load( 'images/Khuwy_background_sm.png' );
+        var KhuwyMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, map: KhuwyTexture } );
+        
+        var KhuwyPlane = new THREE.Mesh( new THREE.PlaneGeometry( 127, 183), KhuwyMaterial ); //636, 916
+        KhuwyPlane.position.set(57, 76, 0 );
+        var radius = 1, inner = 1 * radius;
+        var vertices = [];
+        var DeathLogDS = [];
+
+        this.deathLog.log.forEach(deadDuckObj => {
+          // xPos:p.vision1
+          // yPos:p.vision2
+          // life:p.lifespan
+
+          var vertex = new THREE.Vector4();
+          vertex.x = deadDuckObj.xPos / 5; 
+          vertex.y = deadDuckObj.yPos / 5; 
+          vertex.z = deadDuckObj.life / 10; 
+          vertex.w = deadDuckObj.gen;
+          vertex.multiplyScalar( radius );
+
+            vertices.push( vertex );
+
+        });
+
+
+        vertices1 = vertices.length;
+        radius = 200;
+        
+        var position = new THREE.Vector3();
+        var rotation = new THREE.Euler();
+        var quaternion = new THREE.Quaternion();
+        
+  
+        var positions = new Float32Array( vertices.length * 3 );
+        var colors = new Float32Array( vertices.length * 3 );
+        var sizes = new Float32Array( vertices.length );
+        var vertex;
+        var color = new THREE.Color();
+        
+        for ( var i = 0; i < vertices.length; i ++ ) {
+          vertex = vertices[ i ];
+          var tester = vertex.w;
+          vertex.toArray( positions, i * 3 );
+          if ( i < vertices1 ) {
+
+            // tuned to look nice
+            // this helps express generational data
+            var hue = .65 - (.65/(vertex.w ^ 1.65));
+            var sat = 0.1 + (.85 - (.85/(vertex.w/1.25)));
+            var lum = 1 - (.5 - (.5/(vertex.w/2.5)));
+
+            color.setHSL(hue, sat, lum );
+            
+          } else {
+            color.setHSL( 0.1, 1, 1 );
+          }
+          color.toArray( colors, i * 3 );
+          sizes[ i ] = i < vertices1 ? 10 : 40;
+        }
+        
+        var geometry = new THREE.BufferGeometry();
+
+        geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+        geometry.addAttribute( 'ca', new THREE.BufferAttribute( colors, 3 ) );
+        geometry.addAttribute( 'size', new THREE.BufferAttribute( sizes, 1 ) );
+        //
+        var texture = new THREE.TextureLoader().load( "three_js-master/examples/textures/sprites/ball.png" );
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        var material = new THREE.ShaderMaterial( {
+          uniforms: {
+            amplitude: { value: 1.0 },
+            color: { value: new THREE.Color( 0xffffff ) },
+            texture: { value: texture }
+          },
+          vertexShader: document.getElementById( 'vertexshader' ).textContent,
+          fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+        } );
+
+
+
+        // clean up 
+        sceneDL.dispose();
+
+
+        // axis text
+        var FontLoader = new THREE.FontLoader();
+        var AxisText;
+				FontLoader.load( 'three_js-master/examples/fonts/helvetiker_regular.typeface.json', function ( font ) {
+					var xMid;
+          var color = 0x006699;
+          var size = 8;
+					var matDark = new THREE.LineBasicMaterial( {
+						color: color,
+						side: THREE.DoubleSide
+					} );
+					var matLite = new THREE.MeshBasicMaterial( {
+						color: color,
+						transparent: true,
+						opacity: 0.4,
+						side: THREE.DoubleSide
+          } );
+          
+					var message = "Lifespan";
+					var AxisShapes = font.generateShapes( message, 6 );
+					var AxisGeometry = new THREE.ShapeBufferGeometry( AxisShapes );
+					AxisGeometry.computeBoundingBox();
+					xMid = - 0.5 * ( AxisGeometry.boundingBox.max.x - AxisGeometry.boundingBox.min.x );
+					AxisGeometry.translate( xMid, 2, 0 );
+					// make shape ( N.B. edge view not visible )
+					AxisText = new THREE.Mesh( AxisGeometry, matLite );
+          AxisText.position.z = 35;
+          AxisText.rotation.y = Math.PI / 2;
+          
+          sceneDL.add(AxisText);
+
+        }
+        );
+
+
+        
+
+
+        sceneDL.add( new THREE.AmbientLight( 0x222222 ) );
+
+        object = new THREE.Points( geometry, material );
+
+        sceneDL.add( object );
+
+        sceneDL.add(KhuwyPlane);
+               
+        sceneDL.add( new THREE.AxesHelper(60) );
+
+        
+        
+
+
+        // repeat, prorated!
+        var timeMS = 2000;
+
+        if (vertices1 > 10000){
+          timeMS = 2750;
+        } 
+        else if (vertices1 > 16000) {
+          timeMS = 3500;
+        }
+
+        setTimeout(QueryDeathLog, timeMS);
+
+      }
+
+
+
+
+
+
+
+
+      function onWindowResize() {
+        cameraDL.aspect = window.innerWidth / window.innerHeight;
+        cameraDL.updateProjectionMatrix();
+        rendererDL.setSize( window.innerWidth, window.innerHeight );
+      }
+
+      function animate() {
+        requestAnimationFrame( animate );
+        render();
+        //statsDL.update();
+      }
+
+      function render() {
+        var time = Date.now() * 0.01;
+        
+        rendererDL.render( sceneDL, cameraDL );
+      }
+
+    </script>
+  </div>
 </body>
 </html>

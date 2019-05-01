@@ -11,6 +11,7 @@ class DeathLog{
       // vision3 = distObstacle;
       // vision4 = distObstacle Above
 
+
         var duckObit = {
             snake:p.vision0,
             xPos:p.vision1, 
@@ -18,7 +19,7 @@ class DeathLog{
             obst:p.vision3,
             obstAbv:p.vision4,
             life:p.lifespan,
-            gen:p.gen,
+            gen:population.gen,
             fitness:p.fitness
         };
 
